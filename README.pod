@@ -8,4 +8,22 @@ Jasmine::Spy
 
 version 0.1
 
+=head1 SYNOPSIS
+
+    use Test::Spec;
+    use Jasmine::Spy qw(spyOn stopSpying);
+
+    describe "FooClass" => sub {
+        before each => sub {
+            spyOn("BarClass", "bazMethod")->andReturn("Bop");
+        };
+        it "calls BarClass" => sub {
+            FooClass->doTheThing();
+            expect("BarClass", "bazMethod")->toHaveBeenCalled();
+        };
+        after each => sub {
+            stopSpying("BarClass");
+        };
+    };
+
 =cut

@@ -5,6 +5,24 @@ package Jasmine::Spy;
 
 Jasmine::Spy
 
+=head1 SYNOPSIS
+
+    use Test::Spec;
+    use Jasmine::Spy qw(spyOn stopSpying);
+
+    describe "FooClass" => sub {
+        before each => sub {
+            spyOn("BarClass", "bazMethod")->andReturn("Bop");
+        };
+        it "calls BarClass" => sub {
+            FooClass->doTheThing();
+            expect("BarClass", "bazMethod")->toHaveBeenCalled();
+        };
+        after each => sub {
+            stopSpying("BarClass");
+        };
+    };
+
 =cut
 
 use strict;
@@ -30,7 +48,7 @@ BEGIN {
 sub spyOn {
     my ($proto, $method) = @_;
     if(exists($spies{$proto})){
-        $spies{$proto}->setSpyMethod($proto, $method);
+        $spies{$proto}->spyOnMethod($proto, $method);
     }
     else {
         my $spy = Jasmine::Spy::Instance->new($proto, $method);
@@ -41,18 +59,14 @@ sub spyOn {
 
 sub stopSpying {
     my ($proto) = @_;
-    if(ref($proto)){
-        while (exists $spies{$proto}) {
-            my $spy = delete $spies{$proto};
-            $spy->{class}->meta->rebless_instance_back($proto);
-        }
-    }
-    else {
-
-    }
+    my $spy = delete $spies{$proto};
+    $spy->stopSpying;
 }
 
 package Jasmine::Spy::Instance;
+
+use warnings;
+use strict;
 
 sub new {
     my ($mp, $proto, $method) = @_;
@@ -73,12 +87,25 @@ sub new {
         $self->{spyClass} = $spyClass;
     }
 
-    $self->setSpyMethod($proto, $method);
+    $self->spyOnMethod($proto, $method);
 
     return $self;
 }
 
-sub setSpyMethod {
+sub stopSpying {
+    my $self = shift;
+    if(ref($self->{proto})){
+        $self->{class}->meta->rebless_instance_back($self->{proto});
+    }
+    else {
+        foreach my $method (keys %{$self->{original_methods}}){
+            $self->{class}->meta->remove_method($method);
+            $self->{class}->meta->add_method($method, $self->{original_methods}{$method});
+        }
+    }
+}
+
+sub spyOnMethod {
     my($self, $proto, $method) = @_;
 
     my $class = ref($proto) || $proto;
@@ -86,9 +113,10 @@ sub setSpyMethod {
     $metaclass->make_mutable if ($metaclass->is_immutable);
 
     $self->{current_method} = $method;
-    $self->{original_methods}{$method} = $metaclass->remove_method($method);
+    $self->{original_methods}{$method} = $metaclass->get_method($method);
+    $metaclass->remove_method($method);
     $self->{spyClass} = $metaclass;
-    $metaclass->add_method($method, sub { return undef; });
+    $metaclass->add_method($method, sub { push @{$self->{calls}{$method}}, [@_]; return undef; });
 }
 
 sub andReturn {
@@ -98,9 +126,14 @@ sub andReturn {
     $self->{spyClass}->add_method(
         $self->{current_method},
         sub {
+            push @{$self->{calls}{ $self->{current_method} }}, [@_];
             return $ret;
         }
     );
+}
+
+sub toHaveBeenCalled {
+    my($self) = shift;
 }
 
 return 42;

@@ -33,19 +33,28 @@ describe "spyOn" => sub {
 		};
 	};
 	describe "a package" => sub {
-		it "replaces the original method" => sub {
+		xit "replaces the original method" => sub {
 			spyOn("ExampleClass", "foo");
 			is(ExampleClass->foo, undef);
 		};
-		it "can set a return value" => sub {
+		xit "can set a return value" => sub {
 			spyOn("ExampleClass", 'foo')->andReturn('faz');
 			is(ExampleClass->foo, 'faz');
 		};
-		it "also replaces instance methods" => sub {
+		xit "also replaces instance methods" => sub {
 			spyOn("ExampleClass", "foo");
 			my $example = ExampleClass->new;
 			is($example->foo, undef);
 		};
+		it "can stop spying" => sub {
+			spyOn("ExampleClass", "foo");
+			is(ExampleClass::foo, undef);
+			stopSpying("ExampleClass");
+			is(ExampleClass::foo, 'foo');
+		};
+		# after each => sub {
+		# 	stopSpying("ExampleClass");
+		# };
 	};
 };
 
