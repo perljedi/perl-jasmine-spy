@@ -1,6 +1,6 @@
 use Test::Spec;
 use lib qw(t);
-use Jasmine::Spy qw(spyOn);
+use Jasmine::Spy qw(spyOn stopSpying);
 use ExampleClass;
 
 describe "spyOn" => sub {
@@ -21,17 +21,31 @@ describe "spyOn" => sub {
 			spyOn($example, 'foo');
 			is($example->bar, 'bar');
 		};
+		it "can set a return value" => sub {
+			spyOn($example, 'foo')->andReturn('faz');
+			is($example->foo, 'faz');
+		};
+		it "can stop spying" => sub  {
+			spyOn($example, 'foo');
+			is($example->foo, undef);
+			stopSpying($example);
+			is($example->foo, 'foo');
+		};
 	};
 	describe "a package" => sub {
 		it "replaces the original method" => sub {
 			spyOn("ExampleClass", "foo");
 			is(ExampleClass->foo, undef);
 		};
+		it "can set a return value" => sub {
+			spyOn("ExampleClass", 'foo')->andReturn('faz');
+			is(ExampleClass->foo, 'faz');
+		};
 		it "also replaces instance methods" => sub {
 			spyOn("ExampleClass", "foo");
 			my $example = ExampleClass->new;
 			is($example->foo, undef);
-		}
+		};
 	};
 };
 
