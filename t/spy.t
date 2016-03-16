@@ -1,6 +1,6 @@
 use Test::Spec;
 use lib qw(t);
-use Jasmine::Spy qw(spyOn stopSpying);
+use Jasmine::Spy qw(spyOn stopSpying expectSpy);
 use ExampleClass;
 
 describe "spyOn" => sub {
@@ -25,36 +25,52 @@ describe "spyOn" => sub {
 			spyOn($example, 'foo')->andReturn('faz');
 			is($example->foo, 'faz');
 		};
+		it "can validate that the spy method was called" => sub {
+			spyOn($example, 'foo');
+			$example->foo;
+			expectSpy($example, 'foo')->toHaveBeenCalled();
+		};
+		it "can validate that the spy method was never called" => sub {
+			spyOn($example, 'foo');
+			expectSpy($example, 'foo')->notToHaveBeenCalled();
+		};
 		it "can stop spying" => sub  {
 			spyOn($example, 'foo');
-			is($example->foo, undef);
 			stopSpying($example);
 			is($example->foo, 'foo');
 		};
 	};
 	describe "a package" => sub {
-		xit "replaces the original method" => sub {
+		it "replaces the original method" => sub {
 			spyOn("ExampleClass", "foo");
 			is(ExampleClass->foo, undef);
 		};
-		xit "can set a return value" => sub {
+		it "can set a return value" => sub {
 			spyOn("ExampleClass", 'foo')->andReturn('faz');
 			is(ExampleClass->foo, 'faz');
 		};
-		xit "also replaces instance methods" => sub {
+		it "also replaces instance methods" => sub {
 			spyOn("ExampleClass", "foo");
 			my $example = ExampleClass->new;
 			is($example->foo, undef);
 		};
+		it "can validate that the spy method was called" => sub {
+			spyOn("ExampleClass", "foo");
+			ExampleClass->foo;
+			expectSpy("ExampleClass", 'foo')->toHaveBeenCalled();
+		};
+		it "can validate that the spy method was never called" => sub {
+			spyOn("ExampleClass", "foo");
+			expectSpy("ExampleClass", 'foo')->notToHaveBeenCalled();
+		};
 		it "can stop spying" => sub {
 			spyOn("ExampleClass", "foo");
-			is(ExampleClass::foo, undef);
 			stopSpying("ExampleClass");
 			is(ExampleClass::foo, 'foo');
 		};
-		# after each => sub {
-		# 	stopSpying("ExampleClass");
-		# };
+		after each => sub {
+			stopSpying("ExampleClass");
+		};
 	};
 };
 

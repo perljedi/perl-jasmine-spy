@@ -39,6 +39,7 @@ BEGIN {
     @EXPORT_OK = qw(
         spyOn
         stopSpying
+        expectSpy
     );
     %EXPORT_TAGS = (
 
@@ -60,13 +61,22 @@ sub spyOn {
 sub stopSpying {
     my ($proto) = @_;
     my $spy = delete $spies{$proto};
-    $spy->stopSpying;
+    if($spy){
+        $spy->stopSpying;
+    }
+}
+
+sub expectSpy {
+    my($proto, $method) = @_;
+    $spies{$proto}->setCurrentMethod($method);
+    return $spies{$proto};
 }
 
 package Jasmine::Spy::Instance;
 
 use warnings;
 use strict;
+use base qw(Test::Builder::Module);
 
 sub new {
     my ($mp, $proto, $method) = @_;
@@ -119,6 +129,11 @@ sub spyOnMethod {
     $metaclass->add_method($method, sub { push @{$self->{calls}{$method}}, [@_]; return undef; });
 }
 
+sub setCurrentMethod {
+    my $self = shift;
+    $self->{current_method} = shift;
+}
+
 sub andReturn {
     my $self = shift;
     my $ret  = shift;
@@ -134,6 +149,28 @@ sub andReturn {
 
 sub toHaveBeenCalled {
     my($self) = shift;
+
+    my $tb = __PACKAGE__->builder;
+
+    if ($self->{calls}{ $self->{current_method} } && scalar(@{$self->{calls}{ $self->{current_method} }}) > 0){
+        $tb->ok(1);
+        return 1;
+    }
+    $tb->ok(0);
+    return 0;
+}
+
+sub notToHaveBeenCalled {
+    my($self) = shift;
+
+    my $tb = __PACKAGE__->builder;
+
+    if ($self->{calls}{ $self->{current_method} } && scalar(@{$self->{calls}{ $self->{current_method} }}) > 0){
+        $tb->ok(0);
+        return 0;
+    }
+    $tb->ok(1);
+    return 1;
 }
 
 return 42;
