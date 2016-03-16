@@ -1,10 +1,19 @@
+package Jasmine::Spy;
+# ABSTRACT: Mocking library for perl inspired by Jasmine's spies
+
+=head1 NAME
+
+Jasmine::Spy
+
+=cut
+
 use strict;
 use warnings;
-
-package Jasmine::Spy;
 use vars qw(@EXPORT @EXPORT_OK %EXPORT_TAGS);
 use base qw(Exporter);
 use Class::MOP;
+
+
 my (%spies) = ();
 
 BEGIN {
@@ -32,8 +41,14 @@ sub spyOn {
 
 sub stopSpying {
     my ($proto) = @_;
-    while (exists $spies{$proto}) {
-        $spies{$proto}{class}->meta->rebless_instance_back($proto);
+    if(ref($proto)){
+        while (exists $spies{$proto}) {
+            my $spy = delete $spies{$proto};
+            $spy->{class}->meta->rebless_instance_back($proto);
+        }
+    }
+    else {
+
     }
 }
 
