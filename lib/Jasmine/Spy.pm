@@ -42,7 +42,7 @@ BEGIN {
         expectSpy
     );
     %EXPORT_TAGS = (
-
+        all => \@EXPORT_OK,
     );
 }
 
@@ -77,6 +77,7 @@ package Jasmine::Spy::Instance;
 use warnings;
 use strict;
 use base qw(Test::Builder::Module);
+use Test::Deep;
 
 sub new {
     my ($mp, $proto, $method) = @_;
@@ -126,7 +127,8 @@ sub spyOnMethod {
     $self->{original_methods}{$method} = $metaclass->get_method($method);
     $metaclass->remove_method($method);
     $self->{spyClass} = $metaclass;
-    $metaclass->add_method($method, sub { push @{$self->{calls}{$method}}, [@_]; return undef; });
+    $self->{responses}{$method} = undef;
+    $metaclass->add_method($method, sub { $self->__callFake($method, @_); });
 }
 
 sub setCurrentMethod {
@@ -134,17 +136,20 @@ sub setCurrentMethod {
     $self->{current_method} = shift;
 }
 
+sub __callFake {
+    my $self = shift;
+    my $method = shift;
+    if($_[0] eq $self->{proto}){
+        shift;
+    }
+    push @{ $self->{calls}{$method} }, [@_];
+    return $self->{responses}{$method};
+}
+
 sub andReturn {
     my $self = shift;
     my $ret  = shift;
-    $self->{spyClass}->remove_method($self->{current_method});
-    $self->{spyClass}->add_method(
-        $self->{current_method},
-        sub {
-            push @{$self->{calls}{ $self->{current_method} }}, [@_];
-            return $ret;
-        }
-    );
+    $self->{responses}{ $self->{current_method} } = $ret;
 }
 
 sub toHaveBeenCalled {
@@ -152,11 +157,19 @@ sub toHaveBeenCalled {
 
     my $tb = __PACKAGE__->builder;
 
-    if ($self->{calls}{ $self->{current_method} } && scalar(@{$self->{calls}{ $self->{current_method} }}) > 0){
+    if ($self->__currentMethodHasBeenCalled){
         $tb->ok(1);
         return 1;
     }
     $tb->ok(0);
+    return 0;
+}
+
+sub __currentMethodHasBeenCalled {
+    my $self = shift;
+    if ($self->{calls}{ $self->{current_method} } && scalar(@{$self->{calls}{ $self->{current_method} }}) > 0){
+        return 1;
+    }
     return 0;
 }
 
@@ -165,7 +178,7 @@ sub notToHaveBeenCalled {
 
     my $tb = __PACKAGE__->builder;
 
-    if ($self->{calls}{ $self->{current_method} } && scalar(@{$self->{calls}{ $self->{current_method} }}) > 0){
+    if ($self->__currentMethodHasBeenCalled){
         $tb->ok(0);
         return 0;
     }

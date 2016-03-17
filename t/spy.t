@@ -1,6 +1,6 @@
 use Test::Spec;
 use lib qw(t);
-use Jasmine::Spy qw(spyOn stopSpying expectSpy);
+use Jasmine::Spy qw(:all);
 use ExampleClass;
 
 describe "spyOn" => sub {
