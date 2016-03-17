@@ -165,14 +165,6 @@ sub toHaveBeenCalled {
     return 0;
 }
 
-sub __currentMethodHasBeenCalled {
-    my $self = shift;
-    if ($self->{calls}{ $self->{current_method} } && scalar(@{$self->{calls}{ $self->{current_method} }}) > 0){
-        return 1;
-    }
-    return 0;
-}
-
 sub notToHaveBeenCalled {
     my($self) = shift;
 
@@ -184,6 +176,48 @@ sub notToHaveBeenCalled {
     }
     $tb->ok(1);
     return 1;
+}
+
+sub __currentMethodHasBeenCalled {
+    my $self = shift;
+    if ($self->{calls}{ $self->{current_method} } && scalar(@{$self->{calls}{ $self->{current_method} }}) > 0){
+        return 1;
+    }
+    return 0;
+}
+
+sub toHaveBeenCalledWith {
+    my($self) = shift;
+
+    my $tb = __PACKAGE__->builder;
+
+    if ($self->__currentMethodHasBeenCalledWith(@_)){
+        $tb->ok(1);
+        return 1;
+    }
+    $tb->ok(0);
+    return 0;
+}
+
+sub notToHaveBeenCalledWith {
+    my($self) = shift;
+
+    my $tb = __PACKAGE__->builder;
+
+    if ($self->__currentMethodHasBeenCalledWith(@_)){
+        $tb->ok(0);
+        return 0;
+    }
+    $tb->ok(1);
+    return 1;
+}
+
+sub __currentMethodHasBeenCalledWith {
+    my $self = shift;
+    if($self->__currentMethodHasBeenCalled && grep({eq_deeply([@_], $_)} @{ $self->{calls}{ $self->{current_method} } })){
+        return 1;
+    }
+    return 0;
 }
 
 return 42;

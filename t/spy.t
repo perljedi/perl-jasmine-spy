@@ -30,9 +30,19 @@ describe "spyOn" => sub {
 			$example->foo;
 			expectSpy($example, 'foo')->toHaveBeenCalled();
 		};
+		it "can validate that the spy method was called with specific arguments" => sub {
+			spyOn($example, 'foo');
+			$example->foo('baz');
+			expectSpy($example, 'foo')->toHaveBeenCalledWith('baz');
+		};
 		it "can validate that the spy method was never called" => sub {
 			spyOn($example, 'foo');
 			expectSpy($example, 'foo')->notToHaveBeenCalled();
+		};
+		it "can validate that the spy method was not called with specific arguments" => sub {
+			spyOn($example, 'foo');
+			$example->foo('baz');
+			expectSpy($example, 'foo')->notToHaveBeenCalledWith('ban');
 		};
 		it "can stop spying" => sub  {
 			spyOn($example, 'foo');
@@ -59,9 +69,19 @@ describe "spyOn" => sub {
 			ExampleClass->foo;
 			expectSpy("ExampleClass", 'foo')->toHaveBeenCalled();
 		};
+		it "can validate that the spy method was called with specific arguments" => sub {
+			spyOn("ExampleClass", "foo");
+			ExampleClass->foo('bat');
+			expectSpy("ExampleClass", 'foo')->toHaveBeenCalledWith('bat');
+		};
 		it "can validate that the spy method was never called" => sub {
 			spyOn("ExampleClass", "foo");
 			expectSpy("ExampleClass", 'foo')->notToHaveBeenCalled();
+		};
+		it "can validate that the spy method was not called with specific arguments" => sub {
+			spyOn("ExampleClass", "foo");
+			ExampleClass->foo('bat');
+			expectSpy("ExampleClass", 'foo')->notToHaveBeenCalledWith('bar');
 		};
 		it "can stop spying" => sub {
 			spyOn("ExampleClass", "foo");
