@@ -25,6 +25,16 @@ describe "spyOn" => sub {
 			spyOn($example, 'foo')->andReturn('faz');
 			is($example->foo, 'faz');
 		};
+		it "can replace a method with a subroutine" => sub {
+			my $bar = undef;
+			spyOn($example, 'foo')->andCallFake(sub { $bar = 'word'; return 'blragh'; });
+			$example->foo();
+			is($bar, 'word');
+		};
+		it "can call through to the original method" => sub {
+			spyOn($example, 'foo')->andCallThrough;
+			is($example->foo, 'foo');
+		};
 		it "can validate that the spy method was called" => sub {
 			spyOn($example, 'foo');
 			$example->foo;
@@ -58,6 +68,16 @@ describe "spyOn" => sub {
 		it "can set a return value" => sub {
 			spyOn("ExampleClass", 'foo')->andReturn('faz');
 			is(ExampleClass->foo, 'faz');
+		};
+		it "can replace a method with a subroutine" => sub {
+			my $bar = undef;
+			spyOn("ExampleClass", 'foo')->andCallFake(sub { $bar = 'word'; return 'blragh'; });
+			ExampleClass->foo();
+			is($bar, 'word');
+		};
+		it "can call through to the original method" => sub {
+			spyOn("ExampleClass", 'foo')->andCallThrough;
+			is(ExampleClass->foo, 'foo');
 		};
 		it "also replaces instance methods" => sub {
 			spyOn("ExampleClass", "foo");

@@ -143,6 +143,12 @@ sub __callFake {
         shift;
     }
     push @{ $self->{calls}{$method} }, [@_];
+    if(ref($self->{responses}{$method}) eq 'CODE'){
+        return $self->{responses}{$method}->(@_);
+    }
+    elsif (ref($self->{responses}{$method}) eq 'Class::MOP::Method') {
+        return $self->{responses}{$method}->execute(@_);
+    }
     return $self->{responses}{$method};
 }
 
@@ -150,6 +156,23 @@ sub andReturn {
     my $self = shift;
     my $ret  = shift;
     $self->{responses}{ $self->{current_method} } = $ret;
+}
+
+sub andCallThrough {
+    my $self = shift;
+    my $toCall;
+    if(ref($self->{proto})){
+        $toCall = $self->{class}->meta->get_method($self->{current_method});
+    }
+    else {
+        $toCall = $self->{original_methods}{ $self->{current_method} };
+    }
+
+    $self->andReturn($toCall);
+}
+
+sub andCallFake {
+    shift->andReturn(@_);
 }
 
 sub toHaveBeenCalled {
