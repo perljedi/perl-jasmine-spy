@@ -94,6 +94,12 @@ describe "spyOn" => sub {
 			ExampleClass->foo('bat');
 			expectSpy("ExampleClass", 'foo')->toHaveBeenCalledWith('bat');
 		};
+		it "can validate that an instance of the spy method was called with specific arguments" => sub {
+			spyOn("ExampleClass", "foo");
+			my $example = ExampleClass->new;
+			$example->foo('bzz');
+			expectSpy("ExampleClass", 'foo')->toHaveBeenCalledWith('bzz');
+		};
 		it "can validate that the spy method was never called" => sub {
 			spyOn("ExampleClass", "foo");
 			expectSpy("ExampleClass", 'foo')->notToHaveBeenCalled();
