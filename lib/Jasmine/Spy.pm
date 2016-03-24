@@ -105,6 +105,8 @@ It does also record the arguments along the way.
 
 =head1 TODO
 
+=over 1
+
 =item Convience Method for toHaveBeenCalledTimes
 
 =item Convience Method for andThrow
@@ -112,6 +114,8 @@ It does also record the arguments along the way.
 =item Method to reset the list of calls
 
 =item Method for andReturnValues (like the most recent release of jasmine )
+
+=back
 
 =head1 See also
 
