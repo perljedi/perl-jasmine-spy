@@ -56,7 +56,7 @@ C<expectSpy> is the recomended way to start introspection on a spied method.
 =item getCalls($invocant, $method)
 
 This will fetch an array of array's containing the arguments passed each time the C<$method>
-was called.  This is a tied array ref which also provides convience methods c<first> and
+was called.  This is a tied array ref which also provides convience methods C<first> and
 C<mostRecent>.
 
 =back
