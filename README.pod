@@ -11,7 +11,7 @@ version 0.1
 =head1 SYNOPSIS
 
     use Test::Spec;
-    use Jasmine::Spy qw(spyOn stopSpying);
+    use Jasmine::Spy qw(spyOn stopSpying expectSpy);
 
     describe "FooClass" => sub {
         before each => sub {
@@ -19,11 +19,28 @@ version 0.1
         };
         it "calls BarClass" => sub {
             FooClass->doTheThing();
-            expect("BarClass", "bazMethod")->toHaveBeenCalled();
+            expectSpy("BarClass", "bazMethod")->toHaveBeenCalled();
         };
         after each => sub {
             stopSpying("BarClass");
         };
     };
+
+=head1 Methods
+
+Nothing is exported by default, but they cann all be pulled in with the :all tag
+
+=item spyOn($invocant, $method)
+
+This is the setup method to begin spying. $invocant may be either an object instance or the name of
+a class. Spying on a Class will automatically spy on all instances of the class, even those created
+before setting up the spy.  Spyng on an instance only effects that instance, not the class or
+other instances of that class.
+
+A "spy" object is returned from this call which will allow introspection and testing of
+calls.  However there is no need to catch this, as other convience methods provide a better
+way of performing the same introspection later.
+
+=back
 
 =cut

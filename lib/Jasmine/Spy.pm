@@ -8,7 +8,7 @@ Jasmine::Spy
 =head1 SYNOPSIS
 
     use Test::Spec;
-    use Jasmine::Spy qw(spyOn stopSpying);
+    use Jasmine::Spy qw(spyOn stopSpying expectSpy);
 
     describe "FooClass" => sub {
         before each => sub {
@@ -16,12 +16,29 @@ Jasmine::Spy
         };
         it "calls BarClass" => sub {
             FooClass->doTheThing();
-            expect("BarClass", "bazMethod")->toHaveBeenCalled();
+            expectSpy("BarClass", "bazMethod")->toHaveBeenCalled();
         };
         after each => sub {
             stopSpying("BarClass");
         };
     };
+
+=head1 Methods
+
+Nothing is exported by default, but they cann all be pulled in with the :all tag
+
+=item spyOn($invocant, $method)
+
+This is the setup method to begin spying. $invocant may be either an object instance or the name of
+a class. Spying on a Class will automatically spy on all instances of the class, even those created
+before setting up the spy.  Spyng on an instance only effects that instance, not the class or
+other instances of that class.
+
+A "spy" object is returned from this call which will allow introspection and testing of
+calls.  However there is no need to catch this, as other convience methods provide a better
+way of performing the same introspection later.
+
+=back
 
 =cut
 
@@ -40,6 +57,7 @@ BEGIN {
         spyOn
         stopSpying
         expectSpy
+        getCalls
     );
     %EXPORT_TAGS = (
         all => \@EXPORT_OK,
@@ -70,6 +88,10 @@ sub expectSpy {
     my($proto, $method) = @_;
     $spies{$proto}->setCurrentMethod($method);
     return $spies{$proto};
+}
+
+sub getCalls {
+    expectSpy(@_)->calls;
 }
 
 package Jasmine::Spy::Instance;
@@ -145,6 +167,11 @@ sub __callFake {
     elsif(ref($_[0]) && !ref($self->{proto}) && $_[0]->isa($self->{class})){
         shift;
     }
+
+    if(!exists $self->{calls}{$method}){
+        my(@calls) = ();
+        $self->{calls}{$method} = tie @calls, 'Jasmine::Spy::Instance::Calls';
+    }
     push @{ $self->{calls}{$method} }, [@_];
     if(ref($self->{responses}{$method}) eq 'CODE'){
         return $self->{responses}{$method}->(@_);
@@ -159,6 +186,12 @@ sub andReturn {
     my $self = shift;
     my $ret  = shift;
     $self->{responses}{ $self->{current_method} } = $ret;
+}
+
+sub calls {
+    my $self = shift;
+
+    return $self->{calls}{ $self->{current_method} };
 }
 
 sub andCallThrough {
@@ -244,6 +277,21 @@ sub __currentMethodHasBeenCalledWith {
         return 1;
     }
     return 0;
+}
+
+package Jasmine::Spy::Instance::Calls;
+use Tie::Array;
+use vars qw(@ISA);
+@ISA = qw(Tie::StdArray);
+
+sub first {
+    my $self = shift;
+    return $self->[0];
+}
+
+sub mostRecent {
+    my $self = shift;
+    return $self->[$#$self];
 }
 
 return 42;
