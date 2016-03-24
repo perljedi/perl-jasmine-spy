@@ -30,6 +30,10 @@ version 0.1
 
 Nothing is exported by default, but they cann all be pulled in with the :all tag
 
+=head2 Base Class Methods
+
+=over 1
+
 =item spyOn($invocant, $method)
 
 This is the setup method to begin spying. $invocant may be either an object instance or the name of
@@ -40,6 +44,65 @@ other instances of that class.
 A "spy" object is returned from this call which will allow introspection and testing of
 calls.  However there is no need to catch this, as other convience methods provide a better
 way of performing the same introspection later.
+
+=item stopSpying($invocant)
+
+Use this call to stop spying and restore original functionality to the object or class.
+
+=item expectSpy($invocant, $method)
+
+Use this to retrieve the "spy" object created by spyOn.  It also sets the spy object to
+introspect of the provided C<$method>.  There is only one spy object created for each
+distinct $invocant beign spied on, even if multiple methods are being watched. This is why
+C<expectSpy> is the recomended way to start introspection on a spied method.
+
+=item getCalls($invocant, $method)
+
+This will fetch an array of array's containing the arguments passed each time the C<$method>
+was called.  This is a tied array ref which also provides convience methods c<first> and
+C<mostRecent>.
+
+=back
+
+=head2 Spy object methods
+
+=over 1
+
+=item toHaveBeenCalled
+
+Test that the spied method has been called atleast once.
+
+=item notToHaveBeenCalled
+
+Test that the spied method was never called.
+
+=item toHaveBeenCalledWith($matchers)
+
+Expects that the spied method has been called with arguments matching C<$matchers> atleast once.
+This is done with deep comparison via L<Test::Deep>.
+
+=item notToHaveBeenCalledWith($matchers)
+
+Inverse of toHaveBeenCalledWith.
+
+=item andReturn($value)
+
+Sets the spied method to return the supplied value.  Usually this would be called directly
+on the return from C<spyOn>.
+
+For example:
+
+    spyOn($foo, 'bar')->andReturn('baz')
+
+=item andCallThrough
+
+Sets the spied method to call through to the original method, recording arguments passed along
+the way.
+
+=item andCallFake(sub {})
+
+Sets the spied method to invoke the supplied code reference in place of the original method.
+It does also record the arguments along the way.
 
 =back
 
