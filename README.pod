@@ -6,7 +6,7 @@ Jasmine::Spy
 
 =head1 VERSION
 
-version 0.1
+version 0.9
 
 =head1 SYNOPSIS
 
@@ -105,5 +105,19 @@ Sets the spied method to invoke the supplied code reference in place of the orig
 It does also record the arguments along the way.
 
 =back
+
+=head1 TODO
+
+* Convience Method for toHaveBeenCalledTimes
+
+* Convience Method for andThrow
+
+* Method to reset the list of calls
+
+* Method for andReturnValues (like the most recent release of jasmine)
+
+=head1 See also
+
+L<Test::Spec>, L<Test::Deep>
 
 =cut

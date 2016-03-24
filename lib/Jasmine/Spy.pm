@@ -103,6 +103,20 @@ It does also record the arguments along the way.
 
 =back
 
+=head1 TODO
+
+* Convience Method for toHaveBeenCalledTimes
+
+* Convience Method for andThrow
+
+* Method to reset the list of calls
+
+* Method for andReturnValues (like the most recent release of jasmine)
+
+=head1 See also
+
+L<Test::Spec>, L<Test::Deep>
+
 =cut
 
 use strict;
