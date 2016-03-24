@@ -108,13 +108,13 @@ It does also record the arguments along the way.
 
 =head1 TODO
 
-* Convience Method for toHaveBeenCalledTimes
+=item Convience Method for toHaveBeenCalledTimes
 
-* Convience Method for andThrow
+=item Convience Method for andThrow
 
-* Method to reset the list of calls
+=item Method to reset the list of calls
 
-* Method for andReturnValues (like the most recent release of jasmine)
+=item Method for andReturnValues (like the most recent release of jasmine )
 
 =head1 See also
 
