@@ -18,6 +18,12 @@ shared_examples_for "all spies" => sub {
 		spyOn($invocant, 'foo')->andReturn('faz');
 		is($invocant->foo, 'faz');
 	};
+	it "can set a list of return values to be returned in sequence by subsequent calls" => sub {
+		spyOn($invocant, 'foo')->andReturnValues('baz', 'bat', 'bar');
+		is($invocant->foo, 'baz');
+		is($invocant->foo, 'bat');
+		is($invocant->foo, 'bar');
+	};
 	it "can replace a method with a subroutine" => sub {
 		my $bar = undef;
 		spyOn($invocant, 'foo')->andCallFake(sub { $bar = 'word'; return 'blragh'; });
@@ -51,6 +57,13 @@ shared_examples_for "all spies" => sub {
 		spyOn($invocant, 'foo');
 		$invocant->foo('baz');
 		eq_deeply(getCalls($invocant, 'foo'), [['baz']]);
+	};
+	it "can reset the call list" => sub {
+		spyOn($invocant, 'foo');
+		$invocant->foo('baz');
+		$invocant->foo('baz');
+		getCalls($invocant, 'foo')->reset();
+		expectSpy($invocant, 'foo')->notToHaveBeenCalled();
 	};
 	it "can stop spying" => sub  {
 		spyOn($invocant, 'foo');

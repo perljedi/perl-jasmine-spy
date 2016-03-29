@@ -111,9 +111,8 @@ It does also record the arguments along the way.
 
 =item Convience Method for andThrow
 
-=item Method to reset the list of calls
-
-=item Method for andReturnValues (like the most recent release of jasmine )
+=item andReturnValues should deal with returning hashrefs as hashs in array context
+and arrayrefs as arrays in array context.
 
 =back
 
@@ -269,6 +268,12 @@ sub andReturn {
     $self->{responses}{ $self->{current_method} } = $ret;
 }
 
+sub andReturnValues {
+    my $self = shift;
+    my(@returns) = @_;
+    $self->{responses}{ $self->{current_method} } = sub { return shift @returns };
+}
+
 sub calls {
     my $self = shift;
 
@@ -373,6 +378,11 @@ sub first {
 sub mostRecent {
     my $self = shift;
     return $self->[$#$self];
+}
+
+sub reset {
+    my $self = shift;
+    @$self = ();
 }
 
 return 42;
