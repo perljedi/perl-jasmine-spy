@@ -111,9 +111,6 @@ It does also record the arguments along the way.
 
 =item Convience Method for andThrow
 
-=item andReturnValues should deal with returning hashrefs as hashs in array context
-and arrayrefs as arrays in array context.
-
 =back
 
 =head1 See also
@@ -259,19 +256,33 @@ sub __callFake {
     elsif (ref($self->{responses}{$method}) eq 'Class::MOP::Method') {
         return $self->{responses}{$method}->execute(@_);
     }
-    return $self->{responses}{$method};
+    return $self->__returnFromValue($self->{responses}{$method});
+}
+
+sub __returnFromValue {
+    my $self = shift;
+    my $value = shift;
+    if(wantarray){
+        if(ref($value) eq 'ARRAY'){
+            return @$value;
+        }
+        elsif(ref($value) eq 'HASH'){
+            return %$value;
+        }
+    }
+    return $value;
 }
 
 sub andReturn {
     my $self = shift;
-    my $ret  = shift;
+    my($ret)  = @_;
     $self->{responses}{ $self->{current_method} } = $ret;
 }
 
 sub andReturnValues {
     my $self = shift;
     my(@returns) = @_;
-    $self->{responses}{ $self->{current_method} } = sub { return shift @returns };
+    $self->{responses}{ $self->{current_method} } = sub { return $self->__returnFromValue(shift( @returns )) };
 }
 
 sub calls {

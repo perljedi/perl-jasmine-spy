@@ -18,6 +18,16 @@ shared_examples_for "all spies" => sub {
 		spyOn($invocant, 'foo')->andReturn('faz');
 		is($invocant->foo, 'faz');
 	};
+	it "can return list in list context" => sub {
+		spyOn($invocant, 'foo')->andReturn(['faz', 'bar', 'bat']);
+		my(@list) = $invocant->foo;
+		ok(scalar(@list) == 3);
+	};
+	it "can return hash in list context" => sub {
+		spyOn($invocant, 'foo')->andReturn({faz => 'baz', far => 'bar'});
+		my(%hash) = $invocant->foo;
+		ok(scalar(keys %hash) == 2);
+	};
 	it "can set a list of return values to be returned in sequence by subsequent calls" => sub {
 		spyOn($invocant, 'foo')->andReturnValues('baz', 'bat', 'bar');
 		is($invocant->foo, 'baz');
