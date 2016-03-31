@@ -49,6 +49,31 @@ shared_examples_for "all spies" => sub {
 		$invocant->foo;
 		expectSpy($invocant, 'foo')->toHaveBeenCalled();
 	};
+	it "can validate that the spy method was called once" => sub {
+		spyOn($invocant, 'foo');
+		$invocant->foo;
+		expectSpy($invocant, 'foo')->toHaveBeenCalled()->once;
+	};
+	it "can validate that the spy method was called atleast X times" => sub {
+		spyOn($invocant, 'foo');
+		$invocant->foo;
+		$invocant->foo;
+		$invocant->foo;
+		$invocant->foo;
+		expectSpy($invocant, 'foo')->toHaveBeenCalled()->atleast(3);
+	};
+	it "can validate that the spy method was called at most X times" => sub {
+		spyOn($invocant, 'foo');
+		$invocant->foo;
+		$invocant->foo;
+		expectSpy($invocant, 'foo')->toHaveBeenCalled()->atMost(3);
+	};
+	it "can validate that the spy method was called exactly X times" => sub {
+		spyOn($invocant, 'foo');
+		$invocant->foo;
+		$invocant->foo;
+		expectSpy($invocant, 'foo')->toHaveBeenCalled()->exactly(2);
+	};
 	it "can validate that the spy method was called with specific arguments" => sub {
 		spyOn($invocant, 'foo');
 		$invocant->foo('baz');
