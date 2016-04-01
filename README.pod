@@ -6,25 +6,25 @@ Jasmine::Spy
 
 =head1 VERSION
 
-version 0.9
+version 1.0
 
 =head1 SYNOPSIS
 
-    use Test::Spec;
-    use Jasmine::Spy qw(spyOn stopSpying expectSpy);
+	use Test::Spec;
+	use Jasmine::Spy qw(spyOn stopSpying expectSpy);
 
-    describe "FooClass" => sub {
-        before each => sub {
-            spyOn("BarClass", "bazMethod")->andReturn("Bop");
-        };
-        it "calls BarClass" => sub {
-            FooClass->doTheThing();
-            expectSpy("BarClass", "bazMethod")->toHaveBeenCalled();
-        };
-        after each => sub {
-            stopSpying("BarClass");
-        };
-    };
+	describe "FooClass" => sub {
+		before each => sub {
+			spyOn("BarClass", "bazMethod")->andReturn("Bop");
+		};
+		it "calls BarClass" => sub {
+			FooClass->doTheThing();
+			expectSpy("BarClass", "bazMethod")->toHaveBeenCalled();
+		};
+		after each => sub {
+			stopSpying("BarClass");
+		};
+	};
 
 =head1 Methods
 
@@ -92,7 +92,7 @@ on the return from C<spyOn>.
 
 For example:
 
-    spyOn($foo, 'bar')->andReturn('baz')
+	spyOn($foo, 'bar')->andReturn('baz')
 
 =item andCallThrough
 
@@ -110,13 +110,11 @@ It does also record the arguments along the way.
 
 =over 1
 
-=item Convience Method for toHaveBeenCalledTimes
-
 =item Convience Method for andThrow
 
-=item Method to reset the list of calls
-
-=item Method for andReturnValues (like the most recent release of jasmine )
+Having put some thought into this, I haven't come up with a clean robust way to handle it.
+In the end, I think you are better off using C<andCallFake> to throw an exception
+if you need to test that.
 
 =back
 

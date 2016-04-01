@@ -109,6 +109,10 @@ It does also record the arguments along the way.
 
 =item Convience Method for andThrow
 
+Having put some thought into this, I haven't come up with a clean robust way to handle it.
+In the end, I think you are better off using C<andCallFake> to throw an exception
+if you need to test that.
+
 =back
 
 =head1 See also
