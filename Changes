@@ -2,6 +2,8 @@ Revision history for {{$dist->name}}
 
 {{$NEXT}}
 
+- Added docs for the Quantifier methods.
+
 1.0 Fri Apr 01 2016
 
 0.9 Fri Mar 25 2016

@@ -6,7 +6,7 @@ Jasmine::Spy
 
 =head1 VERSION
 
-version 1.0
+version 1.01
 
 =head1 SYNOPSIS
 
@@ -16,10 +16,15 @@ version 1.0
 	describe "FooClass" => sub {
 		before each => sub {
 			spyOn("BarClass", "bazMethod")->andReturn("Bop");
+			spyOn("BarClass", "bam")->andCallThrough;
 		};
 		it "calls BarClass" => sub {
 			FooClass->doTheThing();
 			expectSpy("BarClass", "bazMethod")->toHaveBeenCalled();
+		};
+		it "calls BarClass->bat method with 'bam'" => sub {
+			FooClass->doTheThing();
+			expectSpy("BarClass", "bat")->toHaveBeenCalledWith('bam')
 		};
 		after each => sub {
 			stopSpying("BarClass");
@@ -103,6 +108,31 @@ the way.
 
 Sets the spied method to invoke the supplied code reference in place of the original method.
 It does also record the arguments along the way.
+
+=back
+
+=head2 Qunatifiers
+
+Quantifiers may be called on the return of either C<toHaveBeenCalled> or C<toHaveBeenCalledWith>
+to stipulate how many times the method should have been called.
+
+=over 1
+
+=item once()
+
+The method was called exactly one time
+
+=item atleast(X)
+
+Method was called atleast X times
+
+=item atMost(X)
+
+Method was not called more than X times
+
+=item exactly(X)
+
+Method was called exactly X times.
 
 =back
 
