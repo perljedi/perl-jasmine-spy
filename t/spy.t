@@ -93,6 +93,16 @@ shared_examples_for "all spies" => sub {
 		$invocant->foo('baz');
 		eq_deeply(getCalls($invocant, 'foo'), [['baz']]);
 	};
+	it "stores the calls correctly even when multiple methods are spied upon" => sub {
+		spyOn($invocant, 'foo');
+		spyOn($invocant, 'bar');
+		$invocant->foo('baz');
+		$invocant->bar('bat');
+		expectSpy($invocant, 'foo')->toHaveBeenCalled;
+		is(getCalls($invocant, 'foo')->mostRecent->[0], 'baz');
+		expectSpy($invocant, 'bar')->toHaveBeenCalled;
+		is(getCalls($invocant, 'bar')->mostRecent->[0], 'bat');
+	};
 	it "can reset the call list" => sub {
 		spyOn($invocant, 'foo');
 		$invocant->foo('baz');

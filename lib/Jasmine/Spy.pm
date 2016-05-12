@@ -277,7 +277,7 @@ sub __callFake {
 	elsif(ref($_[0]) && !ref($self->{proto}) && $_[0]->isa($self->{class})){
 		shift;
 	}
-
+	$self->setCurrentMethod($method);
 	push @{ $self->calls }, [@_];
 	if(ref($self->{responses}{$method}) eq 'CODE'){
 		return $self->{responses}{$method}->(@_);
